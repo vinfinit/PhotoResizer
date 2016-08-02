@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
 using System.IO;
+using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
@@ -25,28 +26,31 @@ namespace photoResizer
 
     class PhotoManager
     {
-        private string OutputFolder { get; }
-        private string InputFolder { get; }
+        private ConfigManager Config { get; }
 
         public PhotoManager(ConfigManager config)
         {
-            OutputFolder = config.OutputFolder;
-            InputFolder = config.InputFolder;
+            Config = config;
         }
 
-        public void Resize(string inputPath, string outputPath)
+        public void Resize(string inputPath, string outputPath, Resolution resolution)
         {
             var captureImage = new Image<Bgr, byte>(inputPath);
-            var resizedImage = captureImage.Resize(600, 600, Inter.Cubic);
+            var resizedImage = captureImage.Resize(resolution.Width, resolution.Height, Inter.Cubic);
             resizedImage.Save(outputPath);
         }
 
         public void Resize()
         {
-            var photosList = Directory.GetFiles(InputFolder, "*.*").ToList();
+            var photosList = Directory.GetFiles(Config.InputFolder, "*.*").ToList();
             foreach (var photo in photosList)
             {
-                Resize(photo, $"{OutputFolder}{Path.GetFileNameWithoutExtension(photo)}{"_1"}{Path.GetExtension(photo)}");
+                foreach (var resolution in Config.Resolutions)
+                {
+                    Resize(photo, 
+                        $"{Config.OutputFolder}{Path.GetFileNameWithoutExtension(photo)}_{resolution.Width}x{resolution.Height}{Path.GetExtension(photo)}",
+                        resolution);
+                }
             }
         }
        

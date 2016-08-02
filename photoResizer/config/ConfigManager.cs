@@ -36,8 +36,8 @@ namespace photoResizer.config
 
     class Resolution
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public Resolution(int width, int height)
         {
