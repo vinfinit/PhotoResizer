@@ -9,7 +9,6 @@ using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
-using photoResizer.config;
 
 namespace photoResizer
 {
