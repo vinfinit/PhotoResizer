@@ -19,41 +19,9 @@ namespace photoResizer
         {
             var config = new ConfigManager();
             var photoManager = new PhotoManager(config);
-            
+
             photoManager.Resize();
         }
-    }
-
-    class PhotoManager
-    {
-        private ConfigManager Config { get; }
-
-        public PhotoManager(ConfigManager config)
-        {
-            Config = config;
-        }
-
-        public void Resize(string inputPath, string outputPath, Resolution resolution)
-        {
-            var captureImage = new Image<Bgr, byte>(inputPath);
-            var resizedImage = captureImage.Resize(resolution.Width, resolution.Height, Inter.Cubic);
-            resizedImage.Save(outputPath);
-        }
-
-        public void Resize()
-        {
-            var photosList = Directory.GetFiles(Config.InputFolder, "*.*").ToList();
-            foreach (var photo in photosList)
-            {
-                foreach (var resolution in Config.Resolutions)
-                {
-                    Resize(photo, 
-                        $"{Config.OutputFolder}{Path.GetFileNameWithoutExtension(photo)}_{resolution.Width}x{resolution.Height}{Path.GetExtension(photo)}",
-                        resolution);
-                }
-            }
-        }
-       
     }
 
 }
