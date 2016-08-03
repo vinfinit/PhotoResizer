@@ -42,17 +42,25 @@ namespace photoResizer
 
 		public void Resize()
 		{
+            var doneEvents = new ManualResetEvent[Config.ThreadCount];
 			PhotoList = new ConcurrentQueue<string>(Directory.GetFiles(Config.InputFolder, "*.*").ToList());
 
 			for (var i = 0; i < Config.ThreadCount; i++)
 			{
-				var threadCapacity = Config.ThreadCapacity;
-				ThreadPool.QueueUserWorkItem(ResizeCallback, threadCapacity);
+			    var threadCapacity = Config.ThreadCapacity;
+			    int k = i;
+                doneEvents[i] = new ManualResetEvent(false);
+				ThreadPool.QueueUserWorkItem((o) =>
+				{
+				    ResizeCallback(o);
+				    doneEvents[k].Set();
+				}, threadCapacity);
 			}
-		}
+            WaitHandle.WaitAll(doneEvents);
+        }
 
 
-		private void ResizeCallback(object capacity)
+        private void ResizeCallback(object capacity)
 		{
 			var castCapacity = (int)capacity;
 			if (castCapacity <= 0) return;
