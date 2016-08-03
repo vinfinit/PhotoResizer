@@ -16,7 +16,7 @@ namespace photoResizer
     {
         private ConfigManager Config { get; }
 
-		private ConcurrentQueue<string> PhotoList { get; set; }
+        private ConcurrentQueue<string> PhotoList { get; set; }
 
         public PhotoManager(ConfigManager config)
         {
@@ -25,51 +25,52 @@ namespace photoResizer
 
         public void Resize(string inputPath, string outputPath, Resolution resolution)
         {
-			var captureImage = new Image<Bgr, byte>(inputPath);
-			var resizedImage = captureImage.Resize(resolution.Width, resolution.Height, Inter.Cubic);
-			resizedImage.Save(outputPath);
-		}
+            var captureImage = new Image<Bgr, byte>(inputPath);
+            var resizedImage = captureImage.Resize(resolution.Width, resolution.Height, Inter.Cubic);
+            resizedImage.Save(outputPath);
+        }
 
-		public void Resize(string photoLink)
-		{
-			foreach (var resolution in Config.Resolutions)
-			{
-				Resize(photoLink,
-					$"{Config.OutputFolder}{Path.GetFileNameWithoutExtension(photoLink)}_{resolution.Width}x{resolution.Height}{Path.GetExtension(photoLink)}",
-					resolution);
-			}
-		}
+        public void Resize(string photoLink)
+        {
+            foreach (var resolution in Config.Resolutions)
+            {
+                Resize(photoLink,
+                    $"{Config.OutputFolder}{Path.GetFileNameWithoutExtension(photoLink)}_{resolution.Width}x{resolution.Height}{Path.GetExtension(photoLink)}",
+                    resolution);
+            }
+        }
 
-		public void Resize()
-		{
+        public void Resize()
+        {
             var doneEvents = new ManualResetEvent[Config.ThreadCount];
-			PhotoList = new ConcurrentQueue<string>(Directory.GetFiles(Config.InputFolder, "*.*").ToList());
+            PhotoList = new ConcurrentQueue<string>(Directory.GetFiles(Config.InputFolder, "*.*").ToList());
 
-			for (var i = 0; i < Config.ThreadCount; i++)
-			{
-			    var threadCapacity = Config.ThreadCapacity;
-			    int k = i;
+            for (var i = 0; i < Config.ThreadCount; i++)
+            {
+                var threadCapacity = Config.ThreadCapacity;
+                int k = i;
                 doneEvents[i] = new ManualResetEvent(false);
-				ThreadPool.QueueUserWorkItem((o) =>
-				{
-				    ResizeCallback(o);
-				    doneEvents[k].Set();
-				}, threadCapacity);
-			}
+                ThreadPool.QueueUserWorkItem((o) =>
+                {
+                    ResizeCallback(o);
+                    doneEvents[k].Set();
+                }, threadCapacity);
+            }
             WaitHandle.WaitAll(doneEvents);
         }
 
 
         private void ResizeCallback(object capacity)
-		{
-			var castCapacity = (int)capacity;
-			if (castCapacity <= 0) return;
+        {
+            var castCapacity = (int) capacity;
+            if (castCapacity <= 0) return;
 
-			string photo;
-			if (PhotoList.TryDequeue(out photo)) {
-				Resize(photo);
-				ResizeCallback(--castCapacity);
-			}
-		}
+            string photo;
+            if (PhotoList.TryDequeue(out photo))
+            {
+                Resize(photo);
+                ResizeCallback(--castCapacity);
+            }
+        }
     }
 }
