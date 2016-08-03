@@ -20,6 +20,7 @@ namespace photoResizer
             var photoManager = new PhotoManager(config);
 
             photoManager.Resize();
+            Console.ReadLine();
         }
     }
 
