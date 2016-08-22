@@ -9,11 +9,14 @@ using System.Threading.Tasks;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using NLog;
 
 namespace photoResizer
 {
     class PhotoManager
     {
+        private Logger logger = LogManager.GetCurrentClassLogger();
+
         private ConfigManager Config { get; }
 
         private ConcurrentQueue<string> PhotoList { get; set; }
@@ -52,8 +55,10 @@ namespace photoResizer
                 doneEvents[i] = new ManualResetEvent(false);
                 ThreadPool.QueueUserWorkItem((o) =>
                 {
+                    logger.Info("$0: start", Thread.CurrentThread.Name);
                     ResizeCallback(o);
                     doneEvents[k].Set();
+                    logger.Info("$0: end", Thread.CurrentThread.Name);
                 }, threadCapacity);
             }
             WaitHandle.WaitAll(doneEvents);
