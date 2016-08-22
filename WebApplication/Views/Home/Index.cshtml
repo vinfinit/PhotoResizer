@@ -1,0 +1,44 @@
+﻿@model WebApplication.Models.ConfigModel
+@{
+    ViewBag.Title = "Photo resizer";
+}
+
+<div class="row">
+    <div class="col-md-6">
+        <form action="/Home/Run" method="post" class="resizer-form">
+            <div class="form-group">
+                <label for="InputFolderField">Input folder</label>
+                <input id="InputFolderField" class="form-control" type="text" name="InputFolder" value="@Model.InputFolder"/>
+            </div>
+            <div class="form-group">
+                <label for="OutputFolderField">Output folder</label>
+                <input id="OutputFolderField" class="form-control" type="text" name="OutputFolder" value="@Model.OutputFolder"/>
+            </div>
+            <div class="form-group">
+                <label for="ResolutionsField">Resolutions (ex. 240x320;600x600)</label>
+                <input id="ResolutionsField" class="form-control" type="text" name="Resolutions" value="@Model.Resolutions"/>
+            </div>
+            <div class="form-group">
+                <label for="ThreadCountField">Threads Count</label>
+                <input id="ThreadCountField" class="form-control" type="number" name="ThreadCount" value="@Model.ThreadCount"/>
+            </div>
+            <div class="form-group">
+                <label for="ThreadCapacityField">Thread Capacity</label>
+                <input id="ThreadCapacityField" class="form-control" type="number" name="ThreadCapacity" value="@Model.ThreadCapacity"/>
+            </div>
+            <div class="form-group col-md-3">
+                <input class="form-control btn btn-info col-md-3" type="submit" value="Run"/>
+            </div>
+            <div class="form-group col-md-3">
+                <input id="stopButton" class="form-control btn btn-danger col-md-3" type="button" value="Stop"/>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+	$('#stopButton').click(function () {
+		$.post('@Url.Action("Stop", "Home")', function (data) {
+			alert(data);
+		});
+	})
+</script>

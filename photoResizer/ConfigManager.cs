@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace photoResizer
 {
-    class ConfigManager
+    public class ConfigManager
     {
         public string OutputFolder { get; private set; }
         public string InputFolder { get; private set; }
@@ -28,9 +28,29 @@ namespace photoResizer
 
             int.TryParse(ConfigurationManager.AppSettings["threadCapacity"], out threadCapacity);
             ThreadCapacity = threadCapacity;
-
-            var resolutions = ConfigurationManager.AppSettings["resolutions"].Split(';');
-            Resolutions = Array.ConvertAll(resolutions, (i) => new Resolution(i)).ToList();
+            
+            SetResolutions(ConfigurationManager.AppSettings["resolutions"]);
         }
-    }
+
+        public ConfigManager(
+            string outputFolder, 
+            string inputFolder, 
+            int threadCount, 
+            int threadCapacity,
+            string resolutions)
+        {
+            OutputFolder = outputFolder;
+            InputFolder = inputFolder;
+            ThreadCount = threadCount;
+            ThreadCapacity = threadCapacity;
+            SetResolutions(resolutions);
+        }
+
+        public void SetResolutions(string resolutions)
+        {
+            var resolutionList = resolutions.Split(';');
+            Resolutions = Array.ConvertAll(resolutionList, i => new Resolution(i)).ToList();
+        }
+
+}
 }

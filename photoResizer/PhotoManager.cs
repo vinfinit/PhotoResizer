@@ -13,7 +13,7 @@ using NLog;
 
 namespace photoResizer
 {
-    class PhotoManager
+    public class PhotoManager
     {
         private Logger logger = LogManager.GetCurrentClassLogger();
 

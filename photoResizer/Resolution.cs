@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace photoResizer
 {
-    class Resolution
+    public class Resolution
     {
         public int Width { get; private set; }
         public int Height { get; private set; }
