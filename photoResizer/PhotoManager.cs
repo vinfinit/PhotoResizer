@@ -15,11 +15,13 @@ namespace photoResizer
 {
     public class PhotoManager
     {
-        private Logger logger = LogManager.GetCurrentClassLogger();
+        private Logger _logger = LogManager.GetCurrentClassLogger();
 
         private ConfigManager Config { get; }
 
         private ConcurrentQueue<string> PhotoList { get; set; }
+
+        private CancellationTokenSource _cts;
 
         public PhotoManager(ConfigManager config)
         {
@@ -48,33 +50,49 @@ namespace photoResizer
             var doneEvents = new ManualResetEvent[Config.ThreadCount];
             PhotoList = new ConcurrentQueue<string>(Directory.GetFiles(Config.InputFolder, "*.*").ToList());
 
+            _cts = new CancellationTokenSource();
+
             for (var i = 0; i < Config.ThreadCount; i++)
             {
                 var threadCapacity = Config.ThreadCapacity;
                 int k = i;
                 doneEvents[i] = new ManualResetEvent(false);
-                ThreadPool.QueueUserWorkItem((o) =>
+                ThreadPool.QueueUserWorkItem(o =>
                 {
-                    logger.Info("$0: start", Thread.CurrentThread.Name);
-                    ResizeCallback(o);
+                    var abortHandler = (AbortHandler)o;
+                    _logger.Info("${0}: start", Thread.CurrentThread.Name);
+                    ResizeCallback(abortHandler.Token, abortHandler.Capacity);
                     doneEvents[k].Set();
-                    logger.Info("$0: end", Thread.CurrentThread.Name);
-                }, threadCapacity);
+                    _logger.Info("${0}: end", Thread.CurrentThread.Name);
+                }, new AbortHandler(_cts.Token, threadCapacity));
             }
             WaitHandle.WaitAll(doneEvents);
         }
 
-
-        private void ResizeCallback(object capacity)
+        public void Abort()
         {
-            var castCapacity = (int) capacity;
-            if (castCapacity <= 0) return;
+            _cts.Cancel();
+        }
+
+
+        private void ResizeCallback(CancellationToken token, int capacity)
+        {
+            if (capacity <= 0)
+            {
+                return;
+            }
+
+            if (token.IsCancellationRequested)
+            {
+                _logger.Info("${0}: abort", Thread.CurrentThread.Name);
+                return;
+            }
 
             string photo;
             if (PhotoList.TryDequeue(out photo))
             {
                 Resize(photo);
-                ResizeCallback(--castCapacity);
+                ResizeCallback(token, --capacity);
             }
         }
     }

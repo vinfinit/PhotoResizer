@@ -16,9 +16,9 @@ namespace WebApplication.Controllers
             {
                 InputFolder = "C:\\Users\\uladzimir_artsemenka\\Downloads\\input\\",
                 OutputFolder = "C:\\Users\\uladzimir_artsemenka\\Downloads\\output\\",
-                ThreadCapacity = 5,
+                ThreadCapacity = 50,
                 ThreadCount = 4,
-                Resolutions = "240x320;600x600"
+                Resolutions = "240x320;600x600;120x360;800x600"
             };
 
             return View(model);
@@ -29,6 +29,7 @@ namespace WebApplication.Controllers
         {
             var config = new ConfigManager(model.OutputFolder, model.InputFolder, model.ThreadCount, model.ThreadCapacity, model.Resolutions);
             var photoManager = new PhotoManager(config);
+            Session["PhotoManager"] = photoManager;
             photoManager.Resize();
             return RedirectToAction("Index");
         }
@@ -36,6 +37,8 @@ namespace WebApplication.Controllers
         [HttpPost]
         public ActionResult Stop()
         {
+            var photoManager = Session["PhotoManager"] as PhotoManager;
+            photoManager?.Abort();
             return Json("Stopped!");
         }
     }
