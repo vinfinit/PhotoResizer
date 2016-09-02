@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using WebApplication.Models;
 using photoResizer;
 using WebApplication.Services;
+using System.Threading;
 
 namespace WebApplication.Controllers
 {
@@ -42,6 +43,16 @@ namespace WebApplication.Controllers
             var photoManager = Session["PhotoManager"] as PhotoManager;
             photoManager?.Abort();
             return Json("Stopped!");
+        }
+
+        public void Message()
+        {
+            Response.ContentType = "text/event-stream";
+            do {
+                Response.Write("data:" + "\n\n");
+                Response.Flush();
+                Thread.Sleep(1000);
+            } while (true);
         }
     }
 }
