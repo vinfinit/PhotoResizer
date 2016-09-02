@@ -34,11 +34,17 @@
             </div>
         </form>
     </div>
+    <div class="col-md-3">
+        <h4>Input images</h4>
+        <ul id="inputImages"></ul>
+    </div>
+    <div class="col-md-3">
+        <h4>Output images</h4>
+        <ul id="outputImages"></ul>
+    </div>
 </div>
-<script>
-	$('#stopButton').click(function () {
-		$.post('@Url.Action("Stop", "Home")', function (data) {
-			alert(data);
-		});
-	})
-</script>
+
+@section Scripts
+{
+    <script src="~/Scripts/Home/index.js"></script>
+}

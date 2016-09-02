@@ -13,17 +13,24 @@ using NLog;
 
 namespace photoResizer
 {
-    public class PhotoManager
+    public class PhotoManager : MarshalByRefObject
     {
         private Logger _logger = LogManager.GetCurrentClassLogger();
 
-        private ConfigManager Config { get; }
+        private ConfigManager Config { get; set; }
 
         private ConcurrentQueue<string> PhotoList { get; set; }
 
         private CancellationTokenSource _cts;
 
+        public PhotoManager() {}
+
         public PhotoManager(ConfigManager config)
+        {
+            SetConfig(config);
+        }
+
+        public void SetConfig(ConfigManager config)
         {
             Config = config;
         }

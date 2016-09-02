@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Remoting;
 using System.Web;
 using System.Web.Mvc;
 using WebApplication.Models;
 using photoResizer;
+using WebApplication.Services;
 
 namespace WebApplication.Controllers
 {
@@ -27,10 +30,9 @@ namespace WebApplication.Controllers
         [HttpPost]
         public ActionResult Run(ConfigModel model)
         {
-            var config = new ConfigManager(model.OutputFolder, model.InputFolder, model.ThreadCount, model.ThreadCapacity, model.Resolutions);
-            var photoManager = new PhotoManager(config);
+            var photoManager = PhotoFactory.GetManager(model);
             Session["PhotoManager"] = photoManager;
-            photoManager.Resize();
+            photoManager?.Resize();
             return RedirectToAction("Index");
         }
 
